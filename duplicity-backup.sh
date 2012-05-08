@@ -46,6 +46,15 @@ PASSPHRASE="foobar_gpg_passphrase"
 # Comment out if you're not using encryption
 GPG_KEY="foobar_gpg_key"
 
+# PATH declarations
+PATH=/bin:/usr/bin:/usr/local/bin
+
+# Path to duplicity scrip (required)
+DUPLICITY="/usr/local/bin/duplicity"
+
+# Path to s3cmd tool (optional)
+S3CMD="/usr/bin/s3cmd"
+
 # Do you want your backup to be encrypted? yes/no
 ENCRYPTION='yes'
 
@@ -136,9 +145,10 @@ EMAIL_TO=
 EMAIL_FROM=
 EMAIL_SUBJECT=
 
-# command to use to send mail (uncomment to activate functionnality)
-#MAIL="mailx"
-#MAIL="ssmtp"
+# mailx and ssmtp are supported
+# command to use to send mail (uncomment and correct the path if needed to activate functionnality)
+#MAILCMD=/usr/bin/mailx
+#MAILCMD=/usr/sbin/ssmtp
 
 # TROUBLESHOOTING: If you are having any problems running this script it is
 # helpful to see the command output that is being generated to determine if the
@@ -146,7 +156,7 @@ EMAIL_SUBJECT=
 # setup).  Simply  uncomment the ECHO line below and the commands will be
 # printed to the logfile.  This way, you can see if the problem is with the
 # script or with duplicity.
-#ECHO=$(which echo)
+#ECHO=/bin/echo
 
 ##############################################################
 # Script Happens Below This Line - Shouldn't Require Editing #
@@ -166,8 +176,6 @@ export AWS_SECRET_ACCESS_KEY
 export PASSPHRASE
 
 LOGFILE="${LOGDIR}${LOG_FILE}"
-DUPLICITY="$(which duplicity)"
-S3CMD="$(which s3cmd)"
 
 # File to use as a lock. The lock is used to insure that only one instance of
 # the script is running at a time.
@@ -238,16 +246,16 @@ check_logdir()
 
 email_logfile()
 {
-  if [ $EMAIL_TO ]; then
-      MAILCMD=$(which $MAIL)
+  if [ $EMAIL_TO -a $MAILCMD ]; then
+      MAIL=$(basename $MAILCMD)
       if [ ! -x "$MAILCMD" ]; then
-          echo -e "Email couldn't be sent. ${MAIL} not available." >> ${LOGFILE}
+          echo -e "Email couldn't be sent. ${MAILCMD} not available." >> ${LOGFILE}
       else
           EMAIL_SUBJECT=${EMAIL_SUBJECT:="duplicity-backup alert ${LOG_FILE}"}
           if [ "$MAIL" = "ssmtp" ]; then
             echo """Subject: ${EMAIL_SUBJECT}""" | cat - ${LOGFILE} | ${MAILCMD} -s ${EMAIL_TO}
 
-          elif ["$MAIL" = "mailx" ]; then
+          elif [ "$MAIL" = "mailx" ]; then
             EMAIL_FROM=${EMAIL_FROM:+"-r ${EMAIL_FROM}"}
             cat ${LOGFILE} | ${MAILCMD} -s """${EMAIL_SUBJECT}""" $EMAIL_FROM ${EMAIL_TO}
           fi
