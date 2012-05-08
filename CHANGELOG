@@ -1,3 +1,9 @@
+0.6.2 (8 May 2012)
+=================
+I had troubles to use this script from cron on Debian Squeeze thus I found some PATH problems resolved in this fork.
+
+  * Fixed some PATH issues that prevented script to be used directly from cron
+
 0.6.1 (5 May 2012)
 =================
 Inclusion of two patches written by [shamer] + modified config file management.
