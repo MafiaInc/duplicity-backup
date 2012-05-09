@@ -181,9 +181,9 @@ LOGFILE="${LOGDIR}${LOG_FILE}"
 # the script is running at a time.
 LOCKFILE=${LOGDIR}backup.lock
 
-if [ $ENCRYPTION = "yes" ]; then
+if [ "$ENCRYPTION" = "yes" ]; then
   ENCRYPT="--encrypt-key=${GPG_KEY} --sign-key=${GPG_KEY}"
-elif [ $ENCRYPTION = "no" ]; then
+elif [ "$ENCRYPTION" = "no" ]; then
   ENCRYPT="--no-encryption"
 fi
 
